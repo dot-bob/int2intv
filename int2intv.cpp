@@ -34,7 +34,7 @@ unsigned int DataSize[4] = {0,0,0,0};
 
 void PrintHelp(void)
 {
-	cout	<< "\nNT Mini Noir intellivision rom formater v1.0\nCommand Use:  int2intv -m X <input file> <output file>\n"
+	cout	<< "\nNT Mini Noir intellivision rom formater v1.1\nCommand Use:  int2intv -m X <input file> <output file>\n"
 			<< "\nSwitches:\n-m X, where X = rom memory map to encode\n";
 			
 	exit(1);
@@ -75,6 +75,7 @@ void PopulateHeader(int Format)
         break;
 
         case 3:
+        case 9:
         MapAddress[0] = 0x5000;
         DataSize[0] = 0x2000;
 
@@ -119,7 +120,7 @@ void PopulateHeader(int Format)
         DataSize[1] = 0x1000;
         break;
 
-        case 9:
+        case 99:
         MapAddress[0] = 0x1000;
         DataSize[0] = 0x1000;
         break;

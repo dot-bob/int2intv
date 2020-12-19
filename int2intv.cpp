@@ -34,7 +34,7 @@ unsigned int DataSize[4] = {0,0,0,0};
 
 void PrintHelp(void)
 {
-	cout	<< "\nNT Mini Noir intellivision rom formater v1.1\nCommand Use:  int2intv -m X <input file> <output file>\n"
+	cout	<< "\nNT Mini Noir intellivision rom formater v1.2\nCommand Use:  int2intv -m X <input file> <output file>\n"
 			<< "\nSwitches:\n-m X, where X = rom memory map to encode\n";
 			
 	exit(1);
@@ -209,6 +209,7 @@ int main(int argc, char* argv[])
     inputFile.open(intputFileName, ios::binary);
     outputFile.open(tempFileName, ios::binary);
 
+    // swap data order
     while(inputFile.read(inputBuffer, wordsize))
     {   
         readSize++; 
@@ -234,58 +235,78 @@ int main(int argc, char* argv[])
     //write header
     outputFile.write((const char *) &MapAddress[0], sizeof(unsigned int)); // write address
     outputFile.write((const char *) &headerSize, sizeof(unsigned int)); // write address
-    
+
     //write data
-    while(inputFile.read(inputBuffer, wordsize) && (headerSize > 0))
+    while(inputFile.read(inputBuffer, wordsize))
+    {
         outputFile.write(inputBuffer, wordsize);
+        if(--headerSize == 0)
+            break;
+    }
 
     if(readSize == 0)
         goto endblock;
 
 // second block
-
     if(readSize > DataSize[1])
         headerSize = DataSize[1];
     else
         headerSize = readSize;
 
+    readSize -= headerSize;
+
+    //write header
     outputFile.write((const char *) &MapAddress[1], sizeof(unsigned int)); // write address
     outputFile.write((const char *) &headerSize, sizeof(unsigned int)); // write size
  
     //write data
-    while(inputFile.read(inputBuffer, wordsize) && (headerSize > 0))
+    while(inputFile.read(inputBuffer, wordsize))
+    {
         outputFile.write(inputBuffer, wordsize);
+        if(--headerSize == 0)
+            break;
+    }
 
     if(readSize == 0)
         goto endblock;
 
 // third block
-
     if(readSize > DataSize[2])
         headerSize = DataSize[2];
     else
         headerSize = readSize;
 
+     readSize -= headerSize;
+
+    //write header
     outputFile.write((const char *) &MapAddress[2], sizeof(unsigned int)); // write address
     outputFile.write((const char *) &headerSize, sizeof(unsigned int)); // write size
- 
+
     //write data
-    while(inputFile.read(inputBuffer, wordsize) && (headerSize > 0))
+    while(inputFile.read(inputBuffer, wordsize))
+    {
         outputFile.write(inputBuffer, wordsize);
+        if(--headerSize == 0)
+            break;
+    }
 
     if(readSize == 0)
         goto endblock;
 
 // fourth block
-
     headerSize = readSize;
 
+    //write header
     outputFile.write((const char *) &MapAddress[3], sizeof(unsigned int)); // write address
     outputFile.write((const char *) &headerSize, sizeof(unsigned int)); // write size
- 
+
     //write data
-    while(inputFile.read(inputBuffer, wordsize) && (headerSize > 0))
+    while(inputFile.read(inputBuffer, wordsize))
+    {
         outputFile.write(inputBuffer, wordsize);
+        if(--headerSize == 0)
+            break;
+    }
 
 endblock:
 // end block
